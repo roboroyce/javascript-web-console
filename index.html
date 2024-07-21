@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Console</title>
+    <style>
+        body {
+            margin: 0;
+            background: black;
+            color: green;
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #console {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            border-bottom: 1px solid green;
+            white-space: pre-wrap; /* Maintain whitespace formatting */
+        }
+        #inputArea {
+            padding: 10px;
+            border-top: 1px solid green;
+            background: black;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            background: black;
+            color: green;
+            border: none;
+            font-family: monospace;
+            resize: none;
+            outline: none; /* Remove default outline */
+        }
+        .error {
+            color: red;
+        }
+        .warn {
+            color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <div id="console"></div>
+    <div id="inputArea">
+        <textarea id="input" placeholder="Type your command here..."></textarea>
+    </div>
+
+    <script>
+        const consoleElement = document.getElementById('console');
+        const inputElement = document.getElementById('input');
+
+        // Save original console methods
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+
+        // Redirect console methods
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            displayLog('log', args);
+        };
+
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            displayLog('error', args);
+        };
+
+        console.warn = function(...args) {
+            originalConsoleWarn.apply(console, args);
+            displayLog('warn', args);
+        };
+
+        function displayLog(type, args) {
+            const p = document.createElement('p');
+            p.className = type;
+            p.textContent = args.join(' ');
+            consoleElement.appendChild(p);
+            consoleElement.scrollTop = consoleElement.scrollHeight;
+        }
+
+        // Example: Simulate some console messages
+        console.log('Welcome to the JavaScript web console!');
+        console.log('Type a command and press Enter...');
+        console.error('This is an error message.');
+        console.warn('This is a warning message.');
+
+        inputElement.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                const input = inputElement.value.trim();
+                if (input) {
+                    try {
+                        // Log the command as-is
+                        console.log(`> ${input}`);
+                        // Evaluate the command
+                        const result = eval(input);
+                        if (result !== undefined) {
+                            console.log(result);
+                        }
+                    } catch (error) {
+                        console.error(`Error: ${error.message}`);
+                    }
+                }
+                inputElement.value = '';
+            }
+        });
+    </script>
+</body>
+</html>
